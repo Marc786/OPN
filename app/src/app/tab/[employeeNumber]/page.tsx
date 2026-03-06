@@ -21,7 +21,6 @@ import {
   DialogFooter,
   DialogBackdrop,
   DialogTitle,
-  DialogCloseTrigger,
   ProgressRoot,
   ProgressTrack,
   ProgressRange,
@@ -209,7 +208,7 @@ export default function TabPage({
               color={projectedTab > 0 ? 'orange.fg' : 'green.fg'}
               mb={3}
             >
-              {hasPending ? 'Nouveau solde' : 'Solde actuel'}
+              {hasPending ? 'Aperçu du solde' : 'Solde actuel'}
             </Text>
             <Text
               fontSize={{ base: '7xl', md: '9xl' }}
@@ -233,62 +232,79 @@ export default function TabPage({
             )}
           </Box>
 
-          {/* Actions grid */}
-          <Flex direction={{ base: 'column', md: 'row' }} gap={6} w="full">
+          {/* Quick shortcuts */}
+          <HStack gap={3} w="full">
             <Button
-              flex={{ md: 1 }}
+              flex={1}
               h="auto"
-              py={8}
+              py={6}
               colorPalette="orange"
               onClick={() => addPending(1)}
               disabled={loading}
               fontWeight="600"
-              fontSize={{ base: 'xl', md: '2xl' }}
+              fontSize={{ base: 'lg', md: 'xl' }}
             >
-              Cafe - 1.00$
+              1.00$
             </Button>
+            <Button
+              flex={1}
+              h="auto"
+              py={6}
+              colorPalette="orange"
+              onClick={() => addPending(2)}
+              disabled={loading}
+              fontWeight="600"
+              fontSize={{ base: 'lg', md: 'xl' }}
+            >
+              2.00$
+            </Button>
+          </HStack>
 
-            <HStack flex={{ md: 2 }} gap={3}>
+          {/* Custom amount */}
+          <HStack gap={3} w="full">
+            <Input
+              placeholder="0.00"
+              type="number"
+              step="0.01"
+              min="0"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              fontSize={{ base: '2xl', md: '3xl' }}
+              fontWeight="600"
+              textAlign="center"
+              py={8}
+              h="auto"
+              flex={1}
+            />
+            <VStack gap={2}>
               <Button
                 h="auto"
-                py={8}
-                px={8}
-                colorPalette="green"
-                onClick={() => addPending(-parsedAmount)}
-                disabled={loading || !hasValidAmount}
-                fontWeight="700"
-                fontSize={{ base: '2xl', md: '3xl' }}
-              >
-                −
-              </Button>
-              <Input
-                placeholder="0.00"
-                type="number"
-                step="0.01"
-                min="0"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                fontSize={{ base: '2xl', md: '3xl' }}
-                fontWeight="600"
-                textAlign="center"
-                py={8}
-                h="auto"
-                flex={1}
-              />
-              <Button
-                h="auto"
-                py={8}
+                py={4}
                 px={8}
                 colorPalette="blue"
                 onClick={() => addPending(parsedAmount)}
                 disabled={loading || !hasValidAmount}
-                fontWeight="700"
-                fontSize={{ base: '2xl', md: '3xl' }}
+                fontWeight="600"
+                fontSize={{ base: 'lg', md: 'xl' }}
+                w="full"
               >
-                +
+                Ajouter
               </Button>
-            </HStack>
-          </Flex>
+              <Button
+                h="auto"
+                py={4}
+                px={8}
+                colorPalette="green"
+                onClick={() => addPending(-parsedAmount)}
+                disabled={loading || !hasValidAmount}
+                fontWeight="600"
+                fontSize={{ base: 'lg', md: 'xl' }}
+                w="full"
+              >
+                Réduire
+              </Button>
+            </VStack>
+          </HStack>
 
           <Separator />
 
@@ -317,7 +333,7 @@ export default function TabPage({
               fontWeight="600"
               fontSize={{ base: 'lg', md: 'xl' }}
             >
-              Remettre a zero
+              Remettre à zéro
             </Button>
           </Flex>
         </Flex>
@@ -335,30 +351,36 @@ export default function TabPage({
           <DialogContent p={8}>
             <DialogHeader pb={4}>
               <DialogTitle fontSize="2xl" fontWeight="700">
-                Remettre a zero
+                Remettre à zéro
               </DialogTitle>
             </DialogHeader>
             <DialogBody>
               <Text fontSize="lg">
-                Le solde de {employee?.fullName} sera remis a 0.00$. Cette
-                action est irreversible.
+                Le solde de {employee?.fullName} sera remis à 0.00$. Cette
+                action est irréversible.
               </Text>
             </DialogBody>
-            <DialogFooter pt={6} gap={3}>
-              <DialogCloseTrigger asChild>
-                <Button variant="outline" size="lg" fontSize="lg" px={8}>
+            <DialogFooter pt={6}>
+              <HStack gap={3} w="full">
+                <Button
+                  flex={1}
+                  variant="outline"
+                  size="lg"
+                  fontSize="lg"
+                  onClick={() => setResetOpen(false)}
+                >
                   Annuler
                 </Button>
-              </DialogCloseTrigger>
-              <Button
-                colorPalette="red"
-                size="lg"
-                fontSize="lg"
-                px={8}
-                onClick={handleConfirmReset}
-              >
-                Confirmer
-              </Button>
+                <Button
+                  flex={1}
+                  colorPalette="red"
+                  size="lg"
+                  fontSize="lg"
+                  onClick={handleConfirmReset}
+                >
+                  Confirmer
+                </Button>
+              </HStack>
             </DialogFooter>
           </DialogContent>
         </DialogPositioner>
@@ -420,28 +442,30 @@ export default function TabPage({
                 </VStack>
               </VStack>
             </DialogBody>
-            <DialogFooter gap={3}>
-              <Button
-                variant="outline"
-                size="lg"
-                fontSize="lg"
-                px={8}
-                onClick={cancelSave}
-              >
-                Annuler
-              </Button>
-              <Button
-                colorPalette="blue"
-                size="lg"
-                fontSize="lg"
-                px={8}
-                onClick={() => {
-                  cancelSave();
-                  doSave();
-                }}
-              >
-                Sauvegarder maintenant
-              </Button>
+            <DialogFooter pt={6}>
+              <HStack gap={3} w="full">
+                <Button
+                  flex={1}
+                  variant="outline"
+                  size="lg"
+                  fontSize="lg"
+                  onClick={cancelSave}
+                >
+                  Annuler
+                </Button>
+                <Button
+                  flex={1}
+                  colorPalette="blue"
+                  size="lg"
+                  fontSize="lg"
+                  onClick={() => {
+                    cancelSave();
+                    doSave();
+                  }}
+                >
+                  Sauvegarder
+                </Button>
+              </HStack>
             </DialogFooter>
           </DialogContent>
         </DialogPositioner>
