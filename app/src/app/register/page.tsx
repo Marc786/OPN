@@ -2,16 +2,7 @@
 
 import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  Box,
-  Container,
-  Heading,
-  Input,
-  Button,
-  VStack,
-  Text,
-  Flex,
-} from '@chakra-ui/react';
+import { Heading, Input, Button, VStack, Text, Flex } from '@chakra-ui/react';
 
 function RegisterForm() {
   const searchParams = useSearchParams();
@@ -59,94 +50,105 @@ function RegisterForm() {
   };
 
   return (
-    <Box bg="bg.panel" borderRadius="2xl" shadow="lg" p={8}>
-      <VStack gap={6} w="full">
-        <VStack gap={1}>
-          <Heading size="2xl" fontWeight="800" letterSpacing="-0.02em">
-            Nouveau compte
-          </Heading>
-          <Text color="fg.muted" fontSize="md">
-            Creez votre ardoise cantine
+    <Flex
+      minH="100dvh"
+      align="center"
+      justify="center"
+      px={8}
+      py={10}
+      direction="column"
+      gap={10}
+    >
+      <VStack gap={2}>
+        <Heading
+          size={{ base: '3xl', md: '5xl' }}
+          fontWeight="800"
+          letterSpacing="-0.02em"
+        >
+          Nouveau compte
+        </Heading>
+        <Text color="fg.muted" fontSize={{ base: 'lg', md: 'xl' }}>
+          Creez votre ardoise cantine
+        </Text>
+      </VStack>
+
+      <VStack gap={8} w="full" maxW="600px">
+        <VStack gap={2} w="full" align="start">
+          <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="500" color="fg.muted">
+            Numero d&apos;employe
           </Text>
+          <Input
+            placeholder="Ex: 12345"
+            value={employeeNumber}
+            onChange={(e) => {
+              setEmployeeNumber(e.target.value);
+              setError('');
+            }}
+            fontSize={{ base: 'xl', md: '2xl' }}
+            fontWeight="500"
+            py={8}
+            h="auto"
+          />
         </VStack>
 
-        <VStack gap={4} w="full">
-          <VStack gap={1} w="full" align="start">
-            <Text fontSize="sm" fontWeight="500" color="fg.muted">
-              Numero d&apos;employe
-            </Text>
-            <Input
-              placeholder="Ex: 12345"
-              value={employeeNumber}
-              onChange={(e) => {
-                setEmployeeNumber(e.target.value);
-                setError('');
-              }}
-              size="lg"
-              fontWeight="500"
-            />
-          </VStack>
-
-          <VStack gap={1} w="full" align="start">
-            <Text fontSize="sm" fontWeight="500" color="fg.muted">
-              Nom complet
-            </Text>
-            <Input
-              placeholder="Ex: Jean Tremblay"
-              value={fullName}
-              onChange={(e) => {
-                setFullName(e.target.value);
-                setError('');
-              }}
-              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-              size="lg"
-              fontWeight="500"
-              autoFocus
-            />
-          </VStack>
+        <VStack gap={2} w="full" align="start">
+          <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="500" color="fg.muted">
+            Nom complet
+          </Text>
+          <Input
+            placeholder="Ex: Jean Tremblay"
+            value={fullName}
+            onChange={(e) => {
+              setFullName(e.target.value);
+              setError('');
+            }}
+            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+            fontSize={{ base: 'xl', md: '2xl' }}
+            fontWeight="500"
+            py={8}
+            h="auto"
+            autoFocus
+          />
         </VStack>
 
         {error && (
-          <Text color="red.400" fontSize="sm">
+          <Text color="red.400" fontSize="lg">
             {error}
           </Text>
         )}
 
-        <VStack gap={3} w="full">
-          <Button
-            w="full"
-            size="xl"
-            colorPalette="blue"
-            onClick={handleSubmit}
-            loading={loading}
-            fontWeight="600"
-          >
-            Creer mon compte
-          </Button>
+        <Button
+          w="full"
+          h="auto"
+          py={6}
+          colorPalette="blue"
+          onClick={handleSubmit}
+          loading={loading}
+          fontWeight="600"
+          fontSize={{ base: 'xl', md: '2xl' }}
+        >
+          Creer mon compte
+        </Button>
 
-          <Button
-            w="full"
-            variant="ghost"
-            size="sm"
-            color="fg.muted"
-            onClick={() => router.push('/')}
-          >
-            Retour
-          </Button>
-        </VStack>
+        <Button
+          w="full"
+          variant="ghost"
+          size="lg"
+          color="fg.muted"
+          fontSize="lg"
+          onClick={() => router.push('/')}
+        >
+          Retour
+        </Button>
       </VStack>
-    </Box>
+    </Flex>
   );
 }
 
 export default function RegisterPage() {
   return (
-    <Flex minH="100dvh" align="center" justify="center">
-      <Container maxW="sm" px={6}>
-        <Suspense>
-          <RegisterForm />
-        </Suspense>
-      </Container>
-    </Flex>
+    <Suspense>
+      <RegisterForm />
+    </Suspense>
   );
 }

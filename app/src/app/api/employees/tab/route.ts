@@ -8,9 +8,9 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const { employeeNumber, amount } = body;
 
-  if (!employeeNumber || typeof amount !== 'number' || amount <= 0) {
+  if (!employeeNumber || typeof amount !== 'number' || amount === 0) {
     return NextResponse.json(
-      { error: 'employeeNumber and a positive amount are required' },
+      { error: 'employeeNumber and a non-zero amount are required' },
       { status: 400 }
     );
   }

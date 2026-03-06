@@ -2,16 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Box,
-  Container,
-  Heading,
-  Input,
-  Button,
-  VStack,
-  Text,
-  Flex,
-} from '@chakra-ui/react';
+import { Heading, Input, Button, VStack, Text, Flex } from '@chakra-ui/react';
 
 export default function Home() {
   const [employeeNumber, setEmployeeNumber] = useState('');
@@ -48,54 +39,65 @@ export default function Home() {
   };
 
   return (
-    <Flex minH="100dvh" align="center" justify="center">
-      <Container maxW="sm" px={6}>
-        <Box bg="bg.panel" borderRadius="2xl" shadow="lg" p={8}>
-          <VStack gap={6} w="full">
-            <VStack gap={1}>
-              <Heading size="3xl" fontWeight="800" letterSpacing="-0.02em">
-                Cantine
-              </Heading>
-              <Text color="fg.muted" fontSize="md">
-                Entrez votre numero d&apos;employe
-              </Text>
-            </VStack>
+    <Flex
+      minH="100dvh"
+      align="center"
+      justify="center"
+      px={8}
+      py={10}
+      direction="column"
+      gap={10}
+    >
+      <VStack gap={2}>
+        <Heading
+          size={{ base: '4xl', md: '6xl' }}
+          fontWeight="800"
+          letterSpacing="-0.02em"
+        >
+          Cantine
+        </Heading>
+        <Text color="fg.muted" fontSize={{ base: 'lg', md: 'xl' }}>
+          Entrez votre numero d&apos;employe
+        </Text>
+      </VStack>
 
-            <Input
-              placeholder="Ex: 12345"
-              value={employeeNumber}
-              onChange={(e) => {
-                setEmployeeNumber(e.target.value);
-                setError('');
-              }}
-              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-              size="xl"
-              textAlign="center"
-              fontSize="2xl"
-              fontWeight="600"
-              letterSpacing="0.1em"
-              autoFocus
-            />
+      <VStack gap={8} w="full" maxW="600px">
+        <Input
+          placeholder="Ex: 12345"
+          value={employeeNumber}
+          onChange={(e) => {
+            setEmployeeNumber(e.target.value);
+            setError('');
+          }}
+          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+          textAlign="center"
+          fontSize={{ base: '3xl', md: '5xl' }}
+          fontWeight="600"
+          letterSpacing="0.1em"
+          py={10}
+          h="auto"
+          autoFocus
+        />
 
-            {error && (
-              <Text color="red.400" fontSize="sm">
-                {error}
-              </Text>
-            )}
+        {error && (
+          <Text color="red.400" fontSize="lg">
+            {error}
+          </Text>
+        )}
 
-            <Button
-              w="full"
-              size="xl"
-              colorPalette="blue"
-              onClick={handleSubmit}
-              loading={loading}
-              fontWeight="600"
-            >
-              Continuer
-            </Button>
-          </VStack>
-        </Box>
-      </Container>
+        <Button
+          w="full"
+          h="auto"
+          py={6}
+          colorPalette="blue"
+          onClick={handleSubmit}
+          loading={loading}
+          fontWeight="600"
+          fontSize={{ base: 'xl', md: '2xl' }}
+        >
+          Continuer
+        </Button>
+      </VStack>
     </Flex>
   );
 }
