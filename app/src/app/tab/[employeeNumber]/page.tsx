@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, useRef, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Box,
@@ -13,6 +13,18 @@ import {
   Flex,
   Separator,
   IconButton,
+  DialogRoot,
+  DialogPositioner,
+  DialogContent,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogBackdrop,
+  DialogTitle,
+  DialogCloseTrigger,
+  ProgressRoot,
+  ProgressTrack,
+  ProgressRange,
 } from '@chakra-ui/react';
 
 interface Employee {
@@ -32,6 +44,12 @@ export default function TabPage({
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [pendingTotal, setPendingTotal] = useState(0);
+
+  // Modal state
+  const [resetOpen, setResetOpen] = useState(false);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [countdown, setCountdown] = useState(5);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchEmployee = async () => {
     const res = await fetch(
@@ -56,13 +74,8 @@ export default function TabPage({
     setAmount('');
   };
 
-  const handleSave = async () => {
-    if (!employee) return;
-
-    if (pendingTotal === 0) {
-      router.push('/');
-      return;
-    }
+  const doSave = useCallback(async () => {
+    if (!employee || pendingTotal === 0) return;
 
     setLoading(true);
     const res = await fetch('/api/employees/tab', {
@@ -75,9 +88,60 @@ export default function TabPage({
       router.push('/');
     }
     setLoading(false);
+  }, [employee, employeeNumber, pendingTotal, router]);
+
+  const startSaveCountdown = () => {
+    setCountdown(5);
+    setSaveOpen(true);
   };
 
-  const handleReset = async () => {
+  const cancelSave = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setSaveOpen(false);
+    setCountdown(5);
+  };
+
+  // Countdown effect
+  useEffect(() => {
+    if (!saveOpen) return;
+
+    timerRef.current = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [saveOpen]);
+
+  // When countdown reaches 0, save
+  useEffect(() => {
+    if (countdown <= 0 && saveOpen) {
+      cancelSave();
+      doSave();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countdown, saveOpen]);
+
+  const handleSave = () => {
+    if (!employee) return;
+
+    if (pendingTotal === 0) {
+      router.push('/');
+      return;
+    }
+
+    startSaveCountdown();
+  };
+
+  const handleConfirmReset = async () => {
+    setResetOpen(false);
     setLoading(true);
     const res = await fetch('/api/employees/tab', {
       method: 'DELETE',
@@ -101,163 +165,287 @@ export default function TabPage({
   if (!employee) return null;
 
   return (
-    <Flex minH="100dvh" direction="column" px={8} py={6}>
-      {/* Top bar */}
-      <Flex justify="space-between" align="center">
-        <VStack align="start" gap={0}>
-          <Heading
-            size={{ base: '2xl', md: '4xl' }}
-            fontWeight="800"
-            letterSpacing="-0.02em"
-          >
-            {employee.fullName}
-          </Heading>
-          <Text color="fg.muted" fontSize={{ base: 'md', md: 'lg' }}>
-            #{employee.employeeNumber}
-          </Text>
-        </VStack>
-        <IconButton
-          aria-label="Fermer"
-          variant="outline"
-          size="lg"
-          color="fg.muted"
-          fontSize="xl"
-          onClick={() => router.push('/')}
-        >
-          ✕
-        </IconButton>
-      </Flex>
-
-      {/* Main content */}
-      <Flex flex={1} direction="column" justify="center" gap={8} py={6}>
-        {/* Balance */}
-        <Box
-          w="full"
-          py={12}
-          borderRadius="2xl"
-          bg={projectedTab > 0 ? 'orange.subtle' : 'green.subtle'}
-          textAlign="center"
-        >
-          <Text
-            fontSize={{ base: 'lg', md: 'xl' }}
-            fontWeight="500"
-            color={projectedTab > 0 ? 'orange.fg' : 'green.fg'}
-            mb={3}
-          >
-            {hasPending ? 'Nouveau solde' : 'Solde actuel'}
-          </Text>
-          <Text
-            fontSize={{ base: '7xl', md: '9xl' }}
-            fontWeight="800"
-            lineHeight="1"
-            color={projectedTab > 0 ? 'orange.fg' : 'green.fg'}
-          >
-            {projectedTab.toFixed(2)}$
-          </Text>
-
-          {hasPending && (
-            <Text
-              fontSize={{ base: 'md', md: 'lg' }}
-              fontWeight="600"
-              mt={4}
-              color={pendingTotal > 0 ? 'orange.fg' : 'green.fg'}
+    <>
+      <Flex minH="100dvh" direction="column" px={8} py={6}>
+        {/* Top bar */}
+        <Flex justify="space-between" align="center">
+          <VStack align="start" gap={0}>
+            <Heading
+              size={{ base: '2xl', md: '4xl' }}
+              fontWeight="800"
+              letterSpacing="-0.02em"
             >
-              {pendingTotal > 0 ? '+' : ''}
-              {pendingTotal.toFixed(2)}$ depuis {employee.tab.toFixed(2)}$
+              {employee.fullName}
+            </Heading>
+            <Text color="fg.muted" fontSize={{ base: 'md', md: 'lg' }}>
+              #{employee.employeeNumber}
             </Text>
-          )}
-        </Box>
-
-        {/* Actions grid */}
-        <Flex direction={{ base: 'column', md: 'row' }} gap={6} w="full">
-          {/* Left: Coffee shortcut */}
-          <Button
-            flex={{ md: 1 }}
-            h="auto"
-            py={8}
-            colorPalette="orange"
-            onClick={() => addPending(1)}
-            disabled={loading}
-            fontWeight="600"
-            fontSize={{ base: 'xl', md: '2xl' }}
+          </VStack>
+          <IconButton
+            aria-label="Fermer"
+            variant="outline"
+            size="lg"
+            color="fg.muted"
+            fontSize="xl"
+            onClick={() => router.push('/')}
           >
-            Cafe - 1.00$
-          </Button>
-
-          {/* Right: Custom amount */}
-          <HStack flex={{ md: 2 }} gap={3}>
-            <Button
-              h="auto"
-              py={8}
-              px={8}
-              colorPalette="green"
-              onClick={() => addPending(-parsedAmount)}
-              disabled={loading || !hasValidAmount}
-              fontWeight="700"
-              fontSize={{ base: '2xl', md: '3xl' }}
-            >
-              −
-            </Button>
-            <Input
-              placeholder="0.00"
-              type="number"
-              step="0.01"
-              min="0"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              fontSize={{ base: '2xl', md: '3xl' }}
-              fontWeight="600"
-              textAlign="center"
-              py={8}
-              h="auto"
-              flex={1}
-            />
-            <Button
-              h="auto"
-              py={8}
-              px={8}
-              colorPalette="blue"
-              onClick={() => addPending(parsedAmount)}
-              disabled={loading || !hasValidAmount}
-              fontWeight="700"
-              fontSize={{ base: '2xl', md: '3xl' }}
-            >
-              +
-            </Button>
-          </HStack>
+            ✕
+          </IconButton>
         </Flex>
 
-        <Separator />
+        {/* Main content */}
+        <Flex flex={1} direction="column" justify="center" gap={8} py={6}>
+          {/* Balance */}
+          <Box
+            w="full"
+            py={12}
+            borderRadius="2xl"
+            bg={projectedTab > 0 ? 'orange.subtle' : 'green.subtle'}
+            textAlign="center"
+          >
+            <Text
+              fontSize={{ base: 'lg', md: 'xl' }}
+              fontWeight="500"
+              color={projectedTab > 0 ? 'orange.fg' : 'green.fg'}
+              mb={3}
+            >
+              {hasPending ? 'Nouveau solde' : 'Solde actuel'}
+            </Text>
+            <Text
+              fontSize={{ base: '7xl', md: '9xl' }}
+              fontWeight="800"
+              lineHeight="1"
+              color={projectedTab > 0 ? 'orange.fg' : 'green.fg'}
+            >
+              {projectedTab.toFixed(2)}$
+            </Text>
 
-        {/* Save + Reset */}
-        <Flex direction={{ base: 'column', md: 'row' }} gap={4} w="full">
-          <Button
-            flex={{ md: 3 }}
-            h="auto"
-            py={6}
-            colorPalette="blue"
-            onClick={handleSave}
-            loading={loading}
-            fontWeight="600"
-            fontSize={{ base: 'xl', md: '2xl' }}
-          >
-            {hasPending ? 'Sauvegarder' : 'Retour'}
-          </Button>
-          <Button
-            flex={{ md: 1 }}
-            h="auto"
-            py={6}
-            variant="outline"
-            colorPalette="red"
-            onClick={handleReset}
-            loading={loading}
-            fontWeight="600"
-            fontSize={{ base: 'lg', md: 'xl' }}
-          >
-            Remettre a zero
-          </Button>
+            {hasPending && (
+              <Text
+                fontSize={{ base: 'md', md: 'lg' }}
+                fontWeight="600"
+                mt={4}
+                color={pendingTotal > 0 ? 'orange.fg' : 'green.fg'}
+              >
+                {pendingTotal > 0 ? '+' : ''}
+                {pendingTotal.toFixed(2)}$ depuis {employee.tab.toFixed(2)}$
+              </Text>
+            )}
+          </Box>
+
+          {/* Actions grid */}
+          <Flex direction={{ base: 'column', md: 'row' }} gap={6} w="full">
+            <Button
+              flex={{ md: 1 }}
+              h="auto"
+              py={8}
+              colorPalette="orange"
+              onClick={() => addPending(1)}
+              disabled={loading}
+              fontWeight="600"
+              fontSize={{ base: 'xl', md: '2xl' }}
+            >
+              Cafe - 1.00$
+            </Button>
+
+            <HStack flex={{ md: 2 }} gap={3}>
+              <Button
+                h="auto"
+                py={8}
+                px={8}
+                colorPalette="green"
+                onClick={() => addPending(-parsedAmount)}
+                disabled={loading || !hasValidAmount}
+                fontWeight="700"
+                fontSize={{ base: '2xl', md: '3xl' }}
+              >
+                −
+              </Button>
+              <Input
+                placeholder="0.00"
+                type="number"
+                step="0.01"
+                min="0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                fontSize={{ base: '2xl', md: '3xl' }}
+                fontWeight="600"
+                textAlign="center"
+                py={8}
+                h="auto"
+                flex={1}
+              />
+              <Button
+                h="auto"
+                py={8}
+                px={8}
+                colorPalette="blue"
+                onClick={() => addPending(parsedAmount)}
+                disabled={loading || !hasValidAmount}
+                fontWeight="700"
+                fontSize={{ base: '2xl', md: '3xl' }}
+              >
+                +
+              </Button>
+            </HStack>
+          </Flex>
+
+          <Separator />
+
+          {/* Save + Reset */}
+          <Flex direction={{ base: 'column', md: 'row' }} gap={4} w="full">
+            <Button
+              flex={{ md: 3 }}
+              h="auto"
+              py={6}
+              colorPalette="blue"
+              onClick={handleSave}
+              loading={loading}
+              fontWeight="600"
+              fontSize={{ base: 'xl', md: '2xl' }}
+            >
+              {hasPending ? 'Sauvegarder' : 'Retour'}
+            </Button>
+            <Button
+              flex={{ md: 1 }}
+              h="auto"
+              py={6}
+              variant="outline"
+              colorPalette="red"
+              onClick={() => setResetOpen(true)}
+              loading={loading}
+              fontWeight="600"
+              fontSize={{ base: 'lg', md: 'xl' }}
+            >
+              Remettre a zero
+            </Button>
+          </Flex>
         </Flex>
       </Flex>
-    </Flex>
+
+      {/* Reset confirmation modal */}
+      <DialogRoot
+        open={resetOpen}
+        onOpenChange={(e) => setResetOpen(e.open)}
+        placement="center"
+        size="lg"
+      >
+        <DialogBackdrop />
+        <DialogPositioner>
+          <DialogContent p={8}>
+            <DialogHeader pb={4}>
+              <DialogTitle fontSize="2xl" fontWeight="700">
+                Remettre a zero
+              </DialogTitle>
+            </DialogHeader>
+            <DialogBody>
+              <Text fontSize="lg">
+                Le solde de {employee?.fullName} sera remis a 0.00$. Cette
+                action est irreversible.
+              </Text>
+            </DialogBody>
+            <DialogFooter pt={6} gap={3}>
+              <DialogCloseTrigger asChild>
+                <Button variant="outline" size="lg" fontSize="lg" px={8}>
+                  Annuler
+                </Button>
+              </DialogCloseTrigger>
+              <Button
+                colorPalette="red"
+                size="lg"
+                fontSize="lg"
+                px={8}
+                onClick={handleConfirmReset}
+              >
+                Confirmer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </DialogPositioner>
+      </DialogRoot>
+
+      {/* Save confirmation modal with countdown */}
+      <DialogRoot
+        open={saveOpen}
+        onOpenChange={(e) => {
+          if (!e.open) cancelSave();
+        }}
+        placement="center"
+        size="lg"
+      >
+        <DialogBackdrop />
+        <DialogPositioner>
+          <DialogContent p={8}>
+            <DialogHeader pb={2}>
+              <DialogTitle fontSize="2xl" fontWeight="700">
+                Confirmation
+              </DialogTitle>
+            </DialogHeader>
+            <DialogBody py={6}>
+              <VStack gap={5} w="full">
+                <VStack gap={1} w="full">
+                  <HStack w="full" justify="space-between">
+                    <Text fontSize="lg" color="fg.muted">
+                      Modification
+                    </Text>
+                    <Text fontSize="lg" fontWeight="700">
+                      {pendingTotal > 0 ? '+' : ''}
+                      {pendingTotal.toFixed(2)}$
+                    </Text>
+                  </HStack>
+                  <HStack w="full" justify="space-between">
+                    <Text fontSize="lg" color="fg.muted">
+                      Nouveau solde
+                    </Text>
+                    <Text fontSize="lg" fontWeight="700">
+                      {projectedTab.toFixed(2)}$
+                    </Text>
+                  </HStack>
+                </VStack>
+
+                <VStack gap={2} w="full">
+                  <ProgressRoot
+                    value={(countdown / 5) * 100}
+                    w="full"
+                    size="lg"
+                    colorPalette="blue"
+                  >
+                    <ProgressTrack>
+                      <ProgressRange />
+                    </ProgressTrack>
+                  </ProgressRoot>
+                  <Text fontSize="sm" color="fg.muted">
+                    Sauvegarde automatique dans {countdown}s
+                  </Text>
+                </VStack>
+              </VStack>
+            </DialogBody>
+            <DialogFooter gap={3}>
+              <Button
+                variant="outline"
+                size="lg"
+                fontSize="lg"
+                px={8}
+                onClick={cancelSave}
+              >
+                Annuler
+              </Button>
+              <Button
+                colorPalette="blue"
+                size="lg"
+                fontSize="lg"
+                px={8}
+                onClick={() => {
+                  cancelSave();
+                  doSave();
+                }}
+              >
+                Sauvegarder maintenant
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </DialogPositioner>
+      </DialogRoot>
+    </>
   );
 }
