@@ -5,7 +5,7 @@ import { Container, Tabs } from '@chakra-ui/react';
 export default function AdminPage() {
   return (
     <Container py={8}>
-      <Tabs.Root defaultValue="users">
+      <Tabs.Root defaultValue="users" variant="enclosed">
         <Tabs.List>
           <Tabs.Trigger value="users">Users</Tabs.Trigger>
           <Tabs.Trigger value="items">Items</Tabs.Trigger>
