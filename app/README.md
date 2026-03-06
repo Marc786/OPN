@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cantine
 
-## Getting Started
+App de gestion des ardoises cantine. Chaque employe a un compte identifie par son numero d'employe et peut y accumuler un solde.
 
-First, run the development server:
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) (v20+)
+- [pnpm](https://pnpm.io/)
+- [Docker](https://www.docker.com/) (for MongoDB)
+
+## Getting started
+
+### 1. Start MongoDB
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker run -d --name mongo -p 27017:27017 mongo
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+If the container already exists:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+docker start mongo
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 2. Install dependencies
 
-## Learn More
+```bash
+pnpm install
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 3. Configure environment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+A `.env.local` file should exist at the root of `app/` with:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+MONGODB_URI=mongodb://localhost:27017
+MONGODB_DB=cantine
+```
 
-## Deploy on Vercel
+### 4. Run the dev server
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open [http://localhost:3000](http://localhost:3000).
+
+## Project structure
+
+```
+src/
+├── app/
+│   ├── page.tsx                  # Employee login (enter number)
+│   ├── register/page.tsx         # New employee registration
+│   ├── tab/[employeeNumber]/     # Tab view (balance, add, reset)
+│   └── api/
+│       └── employees/
+│           ├── route.ts          # POST - create employee
+│           ├── lookup/route.ts   # GET  - lookup by number
+│           └── tab/route.ts      # POST - add to tab, DELETE - reset
+└── lib/
+    ├── domain/
+    │   ├── entities/             # Employee entity
+    │   └── ports/                # Repository interface
+    ├── application/
+    │   └── services/             # Employee application service
+    └── infrastructure/
+        ├── db/mongo.ts           # MongoDB connection
+        └── repositories/         # MongoDB repository implementation
+```
+
+## Tech stack
+
+- **Next.js 16** (App Router)
+- **Chakra UI v3**
+- **MongoDB** (via native driver)
+- **TypeScript**
