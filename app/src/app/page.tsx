@@ -1,6 +1,15 @@
 'use client';
 
-import { Button, Flex, Heading, Input, Text, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Input,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -48,11 +57,16 @@ export default function Home() {
       minH="100dvh"
       align="center"
       justify="center"
+      position="relative"
       px={8}
       py={10}
       direction="column"
       gap={10}
     >
+      <Box position="absolute" top={4} left={4}>
+        <Image src="/bell.png" alt="Bell" width={64} height={64} priority />
+      </Box>
+
       <VStack gap={2}>
         <Heading
           size={{ base: '4xl', md: '6xl' }}
