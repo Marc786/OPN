@@ -1,8 +1,8 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Button, Flex, Heading, Input, Text, VStack } from '@chakra-ui/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Heading, Input, Button, VStack, Text, Flex } from '@chakra-ui/react';
+import { Suspense, useState } from 'react';
 
 function RegisterForm() {
   const searchParams = useSearchParams();
@@ -16,8 +16,18 @@ function RegisterForm() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!employeeNumber.trim() || !fullName.trim()) {
-      setError('Tous les champs sont requis.');
+    if (!employeeNumber.trim()) {
+      setError("Le numéro d'employé est requis.");
+      return;
+    }
+
+    if (employeeNumber.trim().length < 4) {
+      setError("Le numéro d'employé doit contenir au moins 4 caractères.");
+      return;
+    }
+
+    if (!fullName.trim()) {
+      setError('Le nom complet est requis.');
       return;
     }
 
@@ -44,7 +54,7 @@ function RegisterForm() {
 
       router.push(`/tab/${encodeURIComponent(employeeNumber.trim())}`);
     } catch {
-      setError('Erreur de connexion. Reessayez.');
+      setError('Erreur de connexion. Réessayez.');
       setLoading(false);
     }
   };
@@ -68,19 +78,24 @@ function RegisterForm() {
           Nouveau compte
         </Heading>
         <Text color="fg.muted" fontSize={{ base: 'lg', md: 'xl' }}>
-          Creez votre ardoise cantine
+          Créez votre ardoise cantine
         </Text>
       </VStack>
 
       <VStack gap={8} w="full" maxW="600px">
         <VStack gap={2} w="full" align="start">
-          <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="500" color="fg.muted">
-            Numero d&apos;employe
+          <Text
+            fontSize={{ base: 'md', md: 'lg' }}
+            fontWeight="500"
+            color="fg.muted"
+          >
+            Numéro d&apos;employé
           </Text>
           <Input
             placeholder="Ex: 12345"
             value={employeeNumber}
-            onChange={(e) => {
+            minLength={4}
+            onChange={e => {
               setEmployeeNumber(e.target.value);
               setError('');
             }}
@@ -92,17 +107,21 @@ function RegisterForm() {
         </VStack>
 
         <VStack gap={2} w="full" align="start">
-          <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="500" color="fg.muted">
+          <Text
+            fontSize={{ base: 'md', md: 'lg' }}
+            fontWeight="500"
+            color="fg.muted"
+          >
             Nom complet
           </Text>
           <Input
             placeholder="Ex: Jean Tremblay"
             value={fullName}
-            onChange={(e) => {
+            onChange={e => {
               setFullName(e.target.value);
               setError('');
             }}
-            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+            onKeyDown={e => e.key === 'Enter' && handleSubmit()}
             fontSize={{ base: 'xl', md: '2xl' }}
             fontWeight="500"
             py={8}
@@ -127,7 +146,7 @@ function RegisterForm() {
           fontWeight="600"
           fontSize={{ base: 'xl', md: '2xl' }}
         >
-          Creer mon compte
+          Créer mon compte
         </Button>
 
         <Button

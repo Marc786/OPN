@@ -1,19 +1,19 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   Box,
-  Heading,
   Button,
-  VStack,
-  Text,
-  Input,
-  HStack,
   Flex,
-  Separator,
+  Heading,
+  HStack,
   IconButton,
+  Input,
+  Separator,
+  Text,
+  VStack,
 } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
+import { use, useEffect, useState } from 'react';
 
 interface Employee {
   employeeNumber: string;
@@ -52,7 +52,7 @@ export default function TabPage({
 
   const addPending = (value: number) => {
     if (!value) return;
-    setPendingTotal((prev) => prev + value);
+    setPendingTotal(prev => prev + value);
     setAmount('');
   };
 
@@ -181,7 +181,7 @@ export default function TabPage({
             fontWeight="600"
             fontSize={{ base: 'xl', md: '2xl' }}
           >
-            Cafe - 1.00$
+            Café - 1.00$
           </Button>
 
           {/* Right: Custom amount */}
@@ -204,7 +204,7 @@ export default function TabPage({
               step="0.01"
               min="0"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={e => setAmount(e.target.value)}
               fontSize={{ base: '2xl', md: '3xl' }}
               fontWeight="600"
               textAlign="center"
@@ -254,7 +254,7 @@ export default function TabPage({
             fontWeight="600"
             fontSize={{ base: 'lg', md: 'xl' }}
           >
-            Remettre a zero
+            Remettre à zéro
           </Button>
         </Flex>
       </Flex>

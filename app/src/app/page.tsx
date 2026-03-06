@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { Button, Flex, Heading, Input, Text, VStack } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-import { Heading, Input, Button, VStack, Text, Flex } from '@chakra-ui/react';
+import { useState } from 'react';
 
 export default function Home() {
   const [employeeNumber, setEmployeeNumber] = useState('');
@@ -12,7 +12,12 @@ export default function Home() {
 
   const handleSubmit = async () => {
     if (!employeeNumber.trim()) {
-      setError('Veuillez entrer un numero.');
+      setError('Veuillez entrer un numéro.');
+      return;
+    }
+
+    if (employeeNumber.trim().length < 4) {
+      setError('Le numéro doit contenir au moins 4 caractères.');
       return;
     }
 
@@ -33,7 +38,7 @@ export default function Home() {
         );
       }
     } catch {
-      setError('Erreur de connexion. Reessayez.');
+      setError('Erreur de connexion. Réessayez.');
       setLoading(false);
     }
   };
@@ -57,7 +62,7 @@ export default function Home() {
           Cantine
         </Heading>
         <Text color="fg.muted" fontSize={{ base: 'lg', md: 'xl' }}>
-          Entrez votre numero d&apos;employe
+          Entrez votre numéro d&apos;employé
         </Text>
       </VStack>
 
@@ -65,11 +70,12 @@ export default function Home() {
         <Input
           placeholder="Ex: 12345"
           value={employeeNumber}
-          onChange={(e) => {
+          minLength={4}
+          onChange={e => {
             setEmployeeNumber(e.target.value);
             setError('');
           }}
-          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+          onKeyDown={e => e.key === 'Enter' && handleSubmit()}
           textAlign="center"
           fontSize={{ base: '3xl', md: '5xl' }}
           fontWeight="600"
