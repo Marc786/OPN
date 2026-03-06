@@ -156,10 +156,36 @@ export default function TabPage({
     setLoading(false);
   };
 
+  const getBalanceColor = (value: number) => {
+    const clamped = Math.max(0, Math.min(value, 100));
+    const ratio = clamped / 100;
+
+    // green (34,197,94) → yellow (234,179,8) → red (239,68,68)
+    let r: number, g: number, b: number;
+    if (ratio <= 0.5) {
+      const t = ratio * 2;
+      r = Math.round(34 + (234 - 34) * t);
+      g = Math.round(197 + (179 - 197) * t);
+      b = Math.round(94 + (8 - 94) * t);
+    } else {
+      const t = (ratio - 0.5) * 2;
+      r = Math.round(234 + (239 - 234) * t);
+      g = Math.round(179 + (68 - 179) * t);
+      b = Math.round(8 + (68 - 8) * t);
+    }
+
+    return {
+      bg: `rgba(${r}, ${g}, ${b}, 0.1)`,
+      fg: `rgb(${r}, ${g}, ${b})`,
+    };
+  };
+
   const parsedAmount = parseFloat(amount);
   const hasValidAmount = !isNaN(parsedAmount) && parsedAmount > 0;
   const hasPending = pendingTotal !== 0;
   const projectedTab = employee ? employee.tab + pendingTotal : 0;
+  const balanceColor = getBalanceColor(projectedTab);
+  const pendingColor = getBalanceColor(pendingTotal > 0 ? projectedTab : 0);
 
   if (!employee) return null;
 
@@ -199,13 +225,13 @@ export default function TabPage({
             w="full"
             py={12}
             borderRadius="2xl"
-            bg={projectedTab > 0 ? 'orange.subtle' : 'green.subtle'}
+            bg={balanceColor.bg}
             textAlign="center"
           >
             <Text
               fontSize={{ base: 'lg', md: 'xl' }}
               fontWeight="500"
-              color={projectedTab > 0 ? 'orange.fg' : 'green.fg'}
+              color={balanceColor.fg}
               mb={3}
             >
               {hasPending ? 'Aperçu du solde' : 'Solde actuel'}
@@ -214,7 +240,7 @@ export default function TabPage({
               fontSize={{ base: '7xl', md: '9xl' }}
               fontWeight="800"
               lineHeight="1"
-              color={projectedTab > 0 ? 'orange.fg' : 'green.fg'}
+              color={balanceColor.fg}
             >
               {projectedTab.toFixed(2)}$
             </Text>
@@ -224,7 +250,7 @@ export default function TabPage({
                 fontSize={{ base: 'md', md: 'lg' }}
                 fontWeight="600"
                 mt={4}
-                color={pendingTotal > 0 ? 'orange.fg' : 'green.fg'}
+                color={pendingColor.fg}
               >
                 {pendingTotal > 0 ? '+' : ''}
                 {pendingTotal.toFixed(2)}$ depuis {employee.tab.toFixed(2)}$
@@ -238,7 +264,19 @@ export default function TabPage({
               flex={1}
               h="auto"
               py={6}
-              colorPalette="orange"
+              colorPalette="gray" variant="outline"
+              onClick={() => addPending(0.5)}
+              disabled={loading}
+              fontWeight="600"
+              fontSize={{ base: 'lg', md: 'xl' }}
+            >
+              0.50$
+            </Button>
+            <Button
+              flex={1}
+              h="auto"
+              py={6}
+              colorPalette="gray" variant="outline"
               onClick={() => addPending(1)}
               disabled={loading}
               fontWeight="600"
@@ -250,7 +288,7 @@ export default function TabPage({
               flex={1}
               h="auto"
               py={6}
-              colorPalette="orange"
+              colorPalette="gray" variant="outline"
               onClick={() => addPending(2)}
               disabled={loading}
               fontWeight="600"
@@ -281,7 +319,7 @@ export default function TabPage({
                 h="auto"
                 py={4}
                 px={8}
-                colorPalette="blue"
+                colorPalette="red"
                 onClick={() => addPending(parsedAmount)}
                 disabled={loading || !hasValidAmount}
                 fontWeight="600"
@@ -301,7 +339,7 @@ export default function TabPage({
                 fontSize={{ base: 'lg', md: 'xl' }}
                 w="full"
               >
-                Réduire
+                Soustraire
               </Button>
             </VStack>
           </HStack>
@@ -314,7 +352,7 @@ export default function TabPage({
               flex={{ md: 3 }}
               h="auto"
               py={6}
-              colorPalette="blue"
+              colorPalette="gray"
               onClick={handleSave}
               loading={loading}
               fontWeight="600"
@@ -430,7 +468,7 @@ export default function TabPage({
                     value={(countdown / 5) * 100}
                     w="full"
                     size="lg"
-                    colorPalette="blue"
+                    colorPalette="gray"
                   >
                     <ProgressTrack>
                       <ProgressRange />
@@ -455,7 +493,7 @@ export default function TabPage({
                 </Button>
                 <Button
                   flex={1}
-                  colorPalette="blue"
+                  colorPalette="gray"
                   size="lg"
                   fontSize="lg"
                   onClick={() => {

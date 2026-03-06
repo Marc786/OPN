@@ -131,7 +131,7 @@ function RegisterForm() {
         </VStack>
 
         {error && (
-          <Text color="red.400" fontSize="lg">
+          <Text color="red.500" fontSize="lg">
             {error}
           </Text>
         )}
@@ -140,7 +140,7 @@ function RegisterForm() {
           w="full"
           h="auto"
           py={6}
-          colorPalette="blue"
+          colorPalette="gray"
           onClick={handleSubmit}
           loading={loading}
           fontWeight="600"

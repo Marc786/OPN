@@ -100,7 +100,7 @@ export default function Home() {
         />
 
         {error && (
-          <Text color="red.400" fontSize="lg">
+          <Text color="red.500" fontSize="lg">
             {error}
           </Text>
         )}
@@ -109,7 +109,7 @@ export default function Home() {
           w="full"
           h="auto"
           py={6}
-          colorPalette="blue"
+          colorPalette="gray"
           onClick={handleSubmit}
           loading={loading}
           fontWeight="600"
