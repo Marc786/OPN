@@ -118,6 +118,19 @@ export default function Home() {
           Continuer
         </Button>
       </VStack>
+
+      <Button
+        variant="ghost"
+        size="sm"
+        color="fg.muted"
+        fontSize="md"
+        position="absolute"
+        bottom={6}
+        right={6}
+        onClick={() => router.push('/admin')}
+      >
+        Administration
+      </Button>
     </Flex>
   );
 }

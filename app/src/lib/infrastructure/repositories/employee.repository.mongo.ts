@@ -33,6 +33,17 @@ export class MongoEmployeeRepository implements IEmployeeRepository {
     );
     return result ?? null;
   }
+
+  async findAll(): Promise<Employee[]> {
+    const col = await this.collection();
+    return col.find().toArray();
+  }
+
+  async delete(employeeNumber: string): Promise<boolean> {
+    const col = await this.collection();
+    const result = await col.deleteOne({ employeeNumber });
+    return result.deletedCount === 1;
+  }
 }
 
 export const employeeRepository = new MongoEmployeeRepository();

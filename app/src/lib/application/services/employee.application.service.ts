@@ -33,4 +33,12 @@ export class EmployeeApplicationService {
   async resetTab(employeeNumber: string) {
     return this.employeeRepository.updateTab(employeeNumber, 0);
   }
+
+  async getAll() {
+    return this.employeeRepository.findAll();
+  }
+
+  async delete(employeeNumber: string) {
+    return this.employeeRepository.delete(employeeNumber);
+  }
 }
