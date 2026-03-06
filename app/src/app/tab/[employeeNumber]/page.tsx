@@ -319,7 +319,7 @@ export default function TabPage({
                 h="auto"
                 py={4}
                 px={8}
-                colorPalette="red"
+                colorPalette="green"
                 onClick={() => addPending(parsedAmount)}
                 disabled={loading || !hasValidAmount}
                 fontWeight="600"
@@ -332,7 +332,7 @@ export default function TabPage({
                 h="auto"
                 py={4}
                 px={8}
-                colorPalette="green"
+                colorPalette="red"
                 onClick={() => addPending(-parsedAmount)}
                 disabled={loading || !hasValidAmount}
                 fontWeight="600"
