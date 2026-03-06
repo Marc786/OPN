@@ -301,7 +301,7 @@ export default function TabPage({
                 fontSize={{ base: 'lg', md: 'xl' }}
                 w="full"
               >
-                Réduire
+                Soustraire
               </Button>
             </VStack>
           </HStack>
