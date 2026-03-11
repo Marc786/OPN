@@ -10,6 +10,38 @@ App de gestion des ardoises cantine. Chaque employe a un compte identifie par so
 
 ## Getting started
 
+### Vercel auto-deploy (team)
+
+1. Import the Git repository in your Vercel team.
+2. In project settings, set **Root Directory** to `app`.
+3. In **Environment Variables**, add:
+    - `MONGODB_URI` (use MongoDB Atlas URI in production)
+    - `MONGODB_DB` (example: `cantine`)
+4. Keep **Production Branch** as your main branch (or your chosen branch).
+
+After this, every push opens a Preview deployment, and every push to the production branch deploys automatically.
+
+Note: `docker-compose.yml` is for local development. Vercel runs the Next.js app directly, not via Docker Compose.
+
+### Docker Compose (app + MongoDB)
+
+From `app/`:
+
+```bash
+docker compose up --build
+```
+
+This starts:
+
+- App on `http://localhost:3000`
+- MongoDB on `localhost:27017`
+
+Stop with:
+
+```bash
+docker compose down
+```
+
 ### 1. Start MongoDB
 
 ```bash
